@@ -5,14 +5,18 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Xml.Linq;
+using System.Collections.Concurrent;
 
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private FileSystemWatcher watcher;
+    private FileSystemWatcher? watcher;
     private readonly string origem = @"C:\XML\pasta_origem_xml";   // pasta monitorada
     private readonly string destinoBase = @"C:\XML\pasta_destino_xml"; // base destino
-    private readonly string erro = @"C:\XML\pasta_erros_xml"; // pasta para arquivos duplicados
+    private readonly string erro = @"C:\XML\pasta_erros_xml"; // pasta para arquivos duplicados ou com erro
+
+    private readonly ConcurrentQueue<string> filaArquivos = new();
+    private Task? tarefaProcessamento;
 
     public Worker(ILogger<Worker> logger)
     {
@@ -24,15 +28,32 @@ public class Worker : BackgroundService
         _logger.LogInformation("Serviço de XML iniciado em: {time}", DateTimeOffset.Now);
 
         watcher = new FileSystemWatcher(origem, "*.xml");
-        watcher.Created += OnChanged;
+        watcher.Created += (s, e) => filaArquivos.Enqueue(e.FullPath);
         watcher.EnableRaisingEvents = true;
 
         foreach (var file in Directory.GetFiles(origem, "*.xml"))
         {
-            MoverArquivo(file);
+            filaArquivos.Enqueue(file);
         }
 
+        tarefaProcessamento = Task.Run(() => ProcessarArquivos(stoppingToken), stoppingToken);
+
         return Task.CompletedTask;
+    }
+
+    private void ProcessarArquivos(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            if (filaArquivos.TryDequeue(out var caminho))
+            {
+                MoverArquivo(caminho);
+            }
+            else
+            {
+                Thread.Sleep(200); // delay para evitar busy-wait
+            }
+        }
     }
 
     private void OnChanged(object sender, FileSystemEventArgs e)
@@ -57,9 +78,9 @@ public class Worker : BackgroundService
                 }
             }
 
-            string cnpj = ExtrairCnpj(caminho);
-            string anoEmissao = ExtrairAnoEmissao(caminho);
-            string mesEmissao = ExtrairMesEmissao(caminho);
+            string? cnpj = ExtrairCnpj(caminho);
+            string? anoEmissao = ExtrairAnoEmissao(caminho);
+            string? mesEmissao = ExtrairMesEmissao(caminho);
 
             // move para pasta de erro
             if (string.IsNullOrEmpty(cnpj) || string.IsNullOrEmpty(anoEmissao) || string.IsNullOrEmpty(mesEmissao))
@@ -114,7 +135,7 @@ public class Worker : BackgroundService
 
             if (string.IsNullOrEmpty(cnpj))
             {
-                // Log
+                // log
                 var tags = string.Join(", ", doc.Descendants().Select(x => x.Name.LocalName).Distinct());
                 File.AppendAllText(@"C:\XML\debug_tags.txt",
                     $"{DateTime.Now} - Não achou CNPJ em {arquivo}. Tags: {tags}{Environment.NewLine}");
