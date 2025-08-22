@@ -27,13 +27,16 @@ public class Worker : BackgroundService
     {
         _logger.LogInformation("Serviço de XML iniciado em: {time}", DateTimeOffset.Now);
 
+
+
         watcher = new FileSystemWatcher(origem, "*.xml");
+        watcher.IncludeSubdirectories = true;  
         watcher.Created += (s, e) => filaArquivos.Enqueue(e.FullPath);
         watcher.EnableRaisingEvents = true;
 
-        foreach (var file in Directory.GetFiles(origem, "*.xml"))
+        foreach (var file in new DirectoryInfo(origem).GetFiles("*.xml", SearchOption.AllDirectories))
         {
-            filaArquivos.Enqueue(file);
+            filaArquivos.Enqueue(file.FullName);
         }
 
         tarefaProcessamento = Task.Run(() => ProcessarArquivos(stoppingToken), stoppingToken);
