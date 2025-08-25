@@ -1,0 +1,31 @@
+    using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Collections.Generic;
+
+public static class FileHelpers
+{
+    public static void MoverParaErro(
+        string caminho,
+        string erro,
+        ILogger logger,
+        Dictionary<string, string>? filtros = null)
+    {
+        Directory.CreateDirectory(erro);
+        string destino = Path.Combine(erro, Path.GetFileName(caminho));
+
+        if (File.Exists(destino))
+        {
+            string novoNome = Path.GetFileNameWithoutExtension(caminho) + "_" + DateTime.Now.Ticks + ".xml";
+            destino = Path.Combine(erro, novoNome);
+        }
+
+        File.Move(caminho, destino);
+
+        // string de filtros para log
+        string filtrosLog = filtros != null
+            ? string.Join(", ", filtros.Select(kv => $"{kv.Key}={kv.Value}"))
+            : "NENHUM FILTRO";
+
+        logger.LogWarning("ARQUIVO {arquivo} MOVIDO PARA ERRO. FILTROS: {filtros}", caminho, filtrosLog);
+    }
+}
