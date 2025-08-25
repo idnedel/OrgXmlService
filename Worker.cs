@@ -50,7 +50,14 @@ public class Worker : BackgroundService
         {
             if (filaArquivos.TryDequeue(out var caminho))
             {
-                MoverArquivo(caminho);
+                try
+                {
+                    MoverArquivo(caminho);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "ERRO FATAL AO PROCESSAR ARQUIVO {arquivo}. Serviço continuará.", caminho);
+                }
             }
             else
             {
