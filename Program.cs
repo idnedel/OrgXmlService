@@ -10,12 +10,10 @@ internal class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
+            .UseWindowsService()
             .ConfigureServices((hostContext, services) =>
             {
-                // registra o Worker
                 services.AddHostedService<Worker>();
-
-                // registra o FileDispatcher como Singleton
                 services.AddSingleton<FileDispatcher>();
             });
 }
