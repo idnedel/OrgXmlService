@@ -14,6 +14,7 @@ public class NfeProcessor : IXmlProcessor
         try
         {
             string? cnpj = ExtrairCnpj(doc);
+            cnpj = CnpjsHelper.NormalizarCnpj(cnpj ?? "");
             string? ano = ExtrairAnoEmissao(doc);
             string? mes = ExtrairMesEmissao(doc);
 
@@ -29,7 +30,23 @@ public class NfeProcessor : IXmlProcessor
                 return;
             }
 
-            string destino = Path.Combine(destinoBase, "NFE", cnpj, ano, mes);
+            logger.LogInformation("CNPJ extraído: {cnpj}", cnpj);
+
+            var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"M:\ORGXML\OrgXmlService\cnpjs.txt");   // caminho de teste
+            //var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"C:\ORGXML\OrgXmlService\cnpjs.txt"); // caminho absoluto para o arquivo cnpjs.txt
+            logger.LogInformation("CNPJs permitidos: {lista}", string.Join(", ", cnpjsPermitidos));
+
+            string destino;
+
+            if (cnpjsPermitidos.Contains(cnpj))
+            {
+                destino = Path.Combine(destinoBase, "NFE", cnpj, ano, mes);
+            }
+            else
+            {
+                destino = Path.Combine(destinoBase, "NFE", "OUTROS", cnpj, ano, mes);
+            }
+
             Directory.CreateDirectory(destino);
 
             string destinoFinal = Path.Combine(destino, Path.GetFileName(caminho));
