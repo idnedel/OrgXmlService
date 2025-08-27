@@ -44,6 +44,8 @@ public class MdfeProcessor : IXmlProcessor
 		}
 	}
 
+
+	//validar ainda
 	private string? ExtrairCnpj(XDocument doc)
 	{
 		return doc.Descendants()

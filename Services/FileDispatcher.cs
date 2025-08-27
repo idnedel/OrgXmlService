@@ -16,7 +16,7 @@ public class FileDispatcher
             new CteProcessor(),
             new EventosProcessor(),
             new NfseProcessor(),
-            // new MdfeProcessor(),
+            // new MdfeProcessor(), // validar
         };
     }
 
