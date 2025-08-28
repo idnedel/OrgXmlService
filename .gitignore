@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # Arquivo com os CNPJS das empresas
 .cnpjs.txt
+/cnpjs.txt
