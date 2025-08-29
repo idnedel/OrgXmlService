@@ -1,15 +1,16 @@
 ﻿# 📂 OrgXmlService  
 
+> :construction: Projeto em construção... :construction:
+
 Serviço Windows para **organização automática de arquivos XML fiscais** (NFe, CTE, MDFe, NFSe, Eventos) em estrutura de pastas baseada em **CNPJ, ano e mês**.  
 
-> :construction: Projeto em construção... :construction:
 ---
 
 ## Funcionalidades  
 
-- 📡 Monitoramento contínuo de pasta de origem para novos arquivos XML  
-- 📑 Classificação automática por tipo de documento fiscal  
-- 📂 Organização por estrutura:  
+- 📡 Monitoramento contínuo de pasta de origem para novos arquivos XML; 
+- 📑 Classificação automática por tipo de documento fiscal; 
+- 📂 Organização por estrutura; 
 
 - ✅ Suporte a múltiplos tipos:  
 	- NFe (Nota Fiscal Eletrônica)  
@@ -17,26 +18,9 @@ Serviço Windows para **organização automática de arquivos XML fiscais** (NFe
 	- MDFe (Manifesto de Documentos Fiscais)  
 	- NFSe (Nota Fiscal de Serviços Eletrônica)  
 	- Eventos (Eventos fiscais)  
-- ⚠️ Tratamento de erros com pasta dedicada para arquivos problemáticos  
-- 📝 Logs detalhados com **Serilog**  
-- 🔒 Lista de CNPJs permitidos para organização diferenciada (apenas NFe)  
-
----
-
-## Estrutura do Projeto  
-OrgXmlService/
-├── CnpjsHelper.cs # Helper para normalização e leitura de CNPJs
-├── CteProcessor.cs # Processador específico para CTE
-├── EventosProcessor.cs # Processador para eventos fiscais
-├── FileDispatcher.cs # Despachante principal de arquivos
-├── FileHelpers.cs # Utilitários para manipulação de arquivos
-├── IXmlProcessor.cs # Interface para processadores
-├── MdfeProcessor.cs # Processador para MDFe
-├── NfeProcessor.cs # Processador para NFe
-├── NfseProcessor.cs # Processador para NFSe
-├── Program.cs # Configuração e inicialização
-└── Worker.cs # Serviço principal em background
-
+- ⚠️ Tratamento de erros com pasta dedicada para arquivos problemáticos;
+- 📝 Logs detalhados com **Serilog**;
+- 🔒 Lista de CNPJs permitidos para organização diferenciada (apenas NFe).
 
 ---
 
@@ -61,7 +45,9 @@ OrgXmlService/
 No arquivo **`Worker.cs`**, configure os diretórios conforme necessidade:  
 
 `private readonly string origem = @"C:\XML\pasta_origem_xml";`
+
 `private readonly string destinoBase = @"C:\XML\pasta_destino_xml";`
+
 `private readonly string erro = @"C:\XML\pasta_erros_xml";`
 
 Crie o arquivo cnpjs.txt na raiz do projeto com os CNPJs permitidos, um por linha.
