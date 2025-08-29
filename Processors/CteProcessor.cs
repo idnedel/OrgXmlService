@@ -59,7 +59,6 @@ public class CteProcessor : IXmlProcessor
         if (string.IsNullOrEmpty(tagToma))
             return null;
 
-
         {
             switch (tagToma)
             {
