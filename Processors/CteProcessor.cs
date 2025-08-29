@@ -54,9 +54,9 @@ public class CteProcessor : IXmlProcessor
         .FirstOrDefault(x => x.Name.LocalName == "toma")
         ?.Value.Trim();
 
-        logger.LogCritical("RETORNANDO: {tagToma}", tagToma);
+        logger.LogInformation("RETORNANDO: {tagToma}", tagToma);
 
-        if (!string.IsNullOrEmpty(tagToma))
+        if (string.IsNullOrEmpty(tagToma))
             return null;
 
 

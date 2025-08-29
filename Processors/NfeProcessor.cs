@@ -30,12 +30,10 @@ public class NfeProcessor : IXmlProcessor
                 return;
             }
 
-            logger.LogInformation("CNPJ extraído: {cnpj}", cnpj);
+            logger.LogInformation("CNPJ EXTRAIDO: {cnpj}", cnpj);
 
             var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"M:\ORGXML\OrgXmlService\cnpjs.txt");   // caminho de teste
             //var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"C:\ORGXML\OrgXmlService\cnpjs.txt"); // caminho absoluto para o arquivo cnpjs.txt
-            logger.LogInformation("CNPJs permitidos: {lista}", string.Join(", ", cnpjsPermitidos));
-
             string destino;
 
             if (cnpjsPermitidos.Contains(cnpj))
