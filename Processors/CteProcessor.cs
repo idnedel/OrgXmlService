@@ -45,16 +45,20 @@ public class CteProcessor : IXmlProcessor
         }
     }
 
-    private string ExtrairCnpjToma(XDocument doc, ILogger logger)
+    private string? ExtrairCnpjToma(XDocument doc, ILogger logger)
     {
         // busca por tag toma03 ou 04
         var tagToma = doc.Descendants()
-        .Where(x => x.Name.LocalName == "toma03" || x.Name.LocalName == "toma04")
+        .Where(x => x.Name.LocalName == "toma03" || 
+                    x.Name.LocalName == "toma3"  ||
+                    x.Name.LocalName == "toma04" ||
+                    x.Name.LocalName == "toma4"  )
+
         .Descendants()
         .FirstOrDefault(x => x.Name.LocalName == "toma")
         ?.Value.Trim();
 
-        logger.LogInformation("RETORNANDO: {tagToma}", tagToma);
+        //logger.LogInformation($"RETORNANDO TAG TOMA: {tagToma}");
 
         if (string.IsNullOrEmpty(tagToma))
             return null;
@@ -110,7 +114,7 @@ public class CteProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEmi) && dhEmi.Length >= 4)
             return dhEmi.Substring(0, 4);
 
-        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;
+        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value; //modelo antigo de xml 
         if (!string.IsNullOrEmpty(dEmi) && dEmi.Length >= 4)
             return dEmi.Substring(0, 4);
 
@@ -123,7 +127,7 @@ public class CteProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEmi) && dhEmi.Length >= 7)
             return dhEmi.Substring(5, 2);
 
-        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;
+        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value; //modelo antigo de xml
         if (!string.IsNullOrEmpty(dEmi) && dEmi.Length >= 7)
             return dEmi.Substring(5, 2);
 

@@ -24,7 +24,7 @@ public static class FileHelpers
         // string de filtros para log
         string filtrosLog = filtros != null
             ? string.Join(", ", filtros.Select(kv => $"{kv.Key}={kv.Value}"))
-            : "NENHUM FILTRO";
+            : "FILTROS FALTANDO";
 
         logger.LogWarning("ARQUIVO {arquivo} MOVIDO PARA ERRO. FILTROS: {filtros}", caminho, filtrosLog);
     }

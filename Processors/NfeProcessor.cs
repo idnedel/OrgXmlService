@@ -32,8 +32,7 @@ public class NfeProcessor : IXmlProcessor
 
             logger.LogInformation("CNPJ EXTRAIDO: {cnpj}", cnpj);
 
-            var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"M:\ORGXML\OrgXmlService\cnpjs.txt");   // caminho de teste
-            //var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"C:\ORGXML\OrgXmlService\cnpjs.txt"); // caminho absoluto para o arquivo cnpjs.txt
+            var cnpjsPermitidos = CnpjsHelper.ObterCnpjsPermitidos(@"C:\ORGXML\OrgXmlService\cnpjs.txt");
             string destino;
 
             if (cnpjsPermitidos.Contains(cnpj))
@@ -74,7 +73,7 @@ public class NfeProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEmi) && dhEmi.Length >= 4)
             return dhEmi.Substring(0, 4);
 
-        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;
+        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;    //modelo antigo de xml
         if (!string.IsNullOrEmpty(dEmi) && dEmi.Length >= 4)
             return dEmi.Substring(0, 4);
 
@@ -87,7 +86,7 @@ public class NfeProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEmi) && dhEmi.Length >= 7)
             return dhEmi.Substring(5, 2);
 
-        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;
+        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;    //modelo antigo de xml
         if (!string.IsNullOrEmpty(dEmi) && dEmi.Length >= 7)
             return dEmi.Substring(5, 2);
 
