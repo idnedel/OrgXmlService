@@ -96,7 +96,9 @@ public class CteProcessor : IXmlProcessor
 
                 case "4": //4: Outros
                     return doc.Descendants()
-                       .Where(x => x.Name.LocalName == "toma04" || x.Name.LocalName == "toma")
+                       .Where(x => x.Name.LocalName == "toma04" ||
+                                   x.Name.LocalName == "toma4"  ||
+                                   x.Name.LocalName == "toma"   )
                        .Descendants()
                        .FirstOrDefault(x => x.Name.LocalName == "CNPJ")
                        ?.Value.Trim();
