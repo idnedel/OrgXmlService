@@ -8,7 +8,7 @@ internal class Program
     {
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .WriteTo.File(@"C:\ORGXML\OrgXmlService\logs\log.txt", rollingInterval: RollingInterval.Day) // log diário
+            .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day) // log diário
             .CreateLogger();
 
         CreateHostBuilder(args).Build().Run();
