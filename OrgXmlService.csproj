@@ -14,5 +14,6 @@
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="TaskScheduler" Version="2.12.2" />
   </ItemGroup>
 </Project>
