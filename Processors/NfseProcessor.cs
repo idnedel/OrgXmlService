@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Xml.Linq;
+using System.Linq;
 
 public class NfseProcessor : IXmlProcessor
 {
@@ -29,6 +30,32 @@ public class NfseProcessor : IXmlProcessor
                 return;
             }
 
+            // checagem duplicidade por InfNfse.Id
+            string? chave = ExtrairChave(doc);
+            if (string.IsNullOrEmpty(chave))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "CNPJ", cnpj ?? "" },
+                    { "Ano", ano ?? "" },
+                    { "Mes", mes ?? "" },
+                    { "Chave", "" }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
+            if (DuplicateChecker.IsDuplicateAndRegister(chave, "NFSE", destinoBase))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "Motivo", "Duplicidade" },
+                    { "Chave", chave }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
             string destino = Path.Combine(destinoBase, "NFSE", cnpj, ano, mes);
             Directory.CreateDirectory(destino);
 
@@ -46,7 +73,7 @@ public class NfseProcessor : IXmlProcessor
 
     private string? ExtrairCnpj(XDocument doc)
     {
-        // busca padrão 1
+        // busca padrao 1
         var cnpj1 = doc.Descendants()
             .Where(x => x.Name.LocalName == "TomadorServico")
             .Descendants()
@@ -60,7 +87,7 @@ public class NfseProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(cnpj1))
             return cnpj1;
 
-        // busca padrão 2
+        // busca padrao 2
         var cnpj2 = doc.Descendants()
             .Where(x => x.Name.LocalName == "Tomador")
             .Descendants()
@@ -88,5 +115,12 @@ public class NfseProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(DataEmissao) && DataEmissao.Length >= 7)
             return DataEmissao.Substring(5, 2);
         return null;
+    }
+
+    private string? ExtrairChave(XDocument doc)
+    {
+        return doc.Descendants()
+                  .FirstOrDefault(x => x.Name.LocalName == "InfNfse")
+                  ?.Attribute("Id")?.Value.Trim();
     }
 }

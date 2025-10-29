@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Xml.Linq;
+using System.Linq;
 
 public class EventosProcessor : IXmlProcessor
 {
@@ -24,6 +25,32 @@ public class EventosProcessor : IXmlProcessor
                     { "Tipo", tipo ?? "" },
                     { "Ano", ano ?? "" },
                     { "Mes", mes ?? "" }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
+            // checagem duplicidade por infEvento.Id
+            string? chave = ExtrairChave(doc);
+            if (string.IsNullOrEmpty(chave))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "Tipo", tipo ?? "" },
+                    { "Ano", ano ?? "" },
+                    { "Mes", mes ?? "" },
+                    { "Chave", "" }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
+            if (DuplicateChecker.IsDuplicateAndRegister(chave, "EVENTO", destinoBase))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "Motivo", "Duplicidade" },
+                    { "Chave", chave }
                 };
                 FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
                 return;
@@ -67,6 +94,13 @@ public class EventosProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEvento) && dhEvento.Length >= 7)
             return dhEvento.Substring(5, 2);
         return null;
+    }
+
+    private string? ExtrairChave(XDocument doc)
+    {
+        return doc.Descendants()
+                  .FirstOrDefault(x => x.Name.LocalName == "infEvento")
+                  ?.Attribute("Id")?.Value.Trim();
     }
 
 }

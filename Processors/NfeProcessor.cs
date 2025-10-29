@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Xml.Linq;
+using System.Linq;
 
 public class NfeProcessor : IXmlProcessor
 {
@@ -29,6 +30,33 @@ public class NfeProcessor : IXmlProcessor
                 FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
                 return;
             }
+
+            // --- verificação de duplicidade por chave interna ---
+            string? chave = ExtrairChave(doc);
+            if (string.IsNullOrEmpty(chave))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "CNPJ", cnpj ?? "" },
+                    { "Ano", ano ?? "" },
+                    { "Mes", mes ?? "" },
+                    { "Chave", "" }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
+            if (DuplicateChecker.IsDuplicateAndRegister(chave, "NFE", destinoBase))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "Motivo", "Duplicidade" },
+                    { "Chave", chave }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+            // --- fim duplicidade ---
 
             logger.LogInformation("CNPJ EXTRAIDO: {cnpj}", cnpj);
 
@@ -91,5 +119,12 @@ public class NfeProcessor : IXmlProcessor
             return dEmi.Substring(5, 2);
 
         return null;
+    }
+
+    private string? ExtrairChave(XDocument doc)
+    {
+        return doc.Descendants()
+                  .FirstOrDefault(x => x.Name.LocalName == "infNFe")
+                  ?.Attribute("Id")?.Value.Trim();
     }
 }

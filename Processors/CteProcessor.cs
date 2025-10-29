@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Xml.Linq;
+using System.Linq;
 
 public class CteProcessor : IXmlProcessor
 {  
@@ -25,6 +26,32 @@ public class CteProcessor : IXmlProcessor
                     { "CNPJ", cnpj ?? "" },
                     { "Ano", ano ?? "" },
                     { "Mes", mes ?? "" }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
+            // checar chave interna infCte
+            string? chave = ExtrairChave(doc);
+            if (string.IsNullOrEmpty(chave))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "CNPJ", cnpj ?? "" },
+                    { "Ano", ano ?? "" },
+                    { "Mes", mes ?? "" },
+                    { "Chave", "" }
+                };
+                FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
+                return;
+            }
+
+            if (DuplicateChecker.IsDuplicateAndRegister(chave, "CTE", destinoBase))
+            {
+                var filtros = new Dictionary<string, string>
+                {
+                    { "Motivo", "Duplicidade" },
+                    { "Chave", chave }
                 };
                 FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
                 return;
@@ -58,7 +85,7 @@ public class CteProcessor : IXmlProcessor
         .FirstOrDefault(x => x.Name.LocalName == "toma")
         ?.Value.Trim();
 
-        //logger.LogInformation($"RETORNANDO TAG TOMA: {tagToma}");
+        logger.LogInformation($"RETORNANDO TAG TOMA: {tagToma}");
 
         if (string.IsNullOrEmpty(tagToma))
             return null;
@@ -97,15 +124,14 @@ public class CteProcessor : IXmlProcessor
                 case "4": //4: Outros
                     return doc.Descendants()
                        .Where(x => x.Name.LocalName == "toma04" ||
-                                   x.Name.LocalName == "toma4"  ||
-                                   x.Name.LocalName == "toma"   )
+                                   x.Name.LocalName == "toma4" ||
+                                   x.Name.LocalName == "toma")
                        .Descendants()
                        .FirstOrDefault(x => x.Name.LocalName == "CNPJ")
                        ?.Value.Trim();
 
                 default:
                     return null;
-
             }
         }
     }
@@ -116,7 +142,7 @@ public class CteProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEmi) && dhEmi.Length >= 4)
             return dhEmi.Substring(0, 4);
 
-        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value; //modelo antigo de xml 
+        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;    //modelo antigo de xml
         if (!string.IsNullOrEmpty(dEmi) && dEmi.Length >= 4)
             return dEmi.Substring(0, 4);
 
@@ -129,10 +155,17 @@ public class CteProcessor : IXmlProcessor
         if (!string.IsNullOrEmpty(dhEmi) && dhEmi.Length >= 7)
             return dhEmi.Substring(5, 2);
 
-        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value; //modelo antigo de xml
+        var dEmi = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "dEmi")?.Value;    //modelo antigo de xml
         if (!string.IsNullOrEmpty(dEmi) && dEmi.Length >= 7)
             return dEmi.Substring(5, 2);
 
         return null;
+    }
+
+    private string? ExtrairChave(XDocument doc)
+    {
+        return doc.Descendants()
+                  .FirstOrDefault(x => x.Name.LocalName == "infCte")
+                  ?.Attribute("Id")?.Value.Trim();
     }
 }

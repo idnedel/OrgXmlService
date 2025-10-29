@@ -26,7 +26,7 @@ Serviço Windows para **organização automática de arquivos XML fiscais** (NFe
 
 ## Pré-requisitos  
 
-- [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) ou superior  
+- [.NET 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) ou superior  
 - Windows Server/Desktop  
 - Permissões de **leitura/escrita** nas pastas configuradas  
 

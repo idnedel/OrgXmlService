@@ -15,7 +15,7 @@ public static class FileHelpers
 
         if (File.Exists(destino))
         {
-            string novoNome = Path.GetFileNameWithoutExtension(caminho) + "_" + DateTime.Now.Ticks + ".xml";
+            string novoNome = Path.GetFileNameWithoutExtension(caminho) + "_DUPLICADO" + ".xml";
             destino = Path.Combine(erro, novoNome);
         }
 
