@@ -45,7 +45,7 @@ public class EventosProcessor : IXmlProcessor
                 return;
             }
 
-            if (DuplicateChecker.IsDuplicateAndRegister(chave, "EVENTO", destinoBase))
+            if (DuplicateChecker.DuplicadaERegistrada(chave, "EVENTO", destinoBase))
             {
                 var filtros = new Dictionary<string, string>
                 {

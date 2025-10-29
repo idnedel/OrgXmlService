@@ -45,7 +45,7 @@ public class NfseProcessor : IXmlProcessor
                 return;
             }
 
-            if (DuplicateChecker.IsDuplicateAndRegister(chave, "NFSE", destinoBase))
+            if (DuplicateChecker.DuplicadaERegistrada(chave, "NFSE", destinoBase))
             {
                 var filtros = new Dictionary<string, string>
                 {

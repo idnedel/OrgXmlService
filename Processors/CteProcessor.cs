@@ -46,7 +46,7 @@ public class CteProcessor : IXmlProcessor
                 return;
             }
 
-            if (DuplicateChecker.IsDuplicateAndRegister(chave, "CTE", destinoBase))
+            if (DuplicateChecker.DuplicadaERegistrada(chave, "CTE", destinoBase))
             {
                 var filtros = new Dictionary<string, string>
                 {
@@ -85,7 +85,7 @@ public class CteProcessor : IXmlProcessor
         .FirstOrDefault(x => x.Name.LocalName == "toma")
         ?.Value.Trim();
 
-        logger.LogInformation($"RETORNANDO TAG TOMA: {tagToma}");
+        // logger.LogInformation($"RETORNANDO TAG TOMA: {tagToma}");
 
         if (string.IsNullOrEmpty(tagToma))
             return null;

@@ -19,6 +19,12 @@ public static class FileHelpers
             destino = Path.Combine(erro, novoNome);
         }
 
+        if (filtros != null && filtros.ContainsKey("Motivo") && filtros["Motivo"] == "Duplicidade")
+        {
+            string novoNome = Path.GetFileNameWithoutExtension(caminho) + "_DUPLICADO" + ".xml";
+            destino = Path.Combine(erro, novoNome);
+        }
+
         File.Move(caminho, destino);
 
         // string de filtros para log

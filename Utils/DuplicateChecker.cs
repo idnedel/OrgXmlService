@@ -7,15 +7,11 @@ public static class DuplicateChecker
 {
     private static readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
-    /// <summary>
-    /// Verifica se a chave já existe para o tipo informado e, se não existir, registra-a.
-    /// Retorna true se for duplicada (já estava registrada), false se foi registrada agora.
-    /// </summary>
-    public static bool IsDuplicateAndRegister(string chave, string tipo, string basePath)
+    public static bool DuplicadaERegistrada(string chave, string tipo, string basePath)
     {
         if (string.IsNullOrWhiteSpace(chave)) return false;
 
-        var dir = Path.Combine(basePath ?? AppContext.BaseDirectory, "_CHAVES-REGISTRADAS");
+        var dir = Path.Combine(basePath ?? AppContext.BaseDirectory, "_ChavesResgitradas");
         Directory.CreateDirectory(dir);
 
         var file = Path.Combine(dir, $"{tipo}.txt");
@@ -34,7 +30,6 @@ public static class DuplicateChecker
             }
 
             _lock.EnterWriteLock();
-            // Append para garantir persistência mínima; usa nova linha
             File.AppendAllText(file, chave + Environment.NewLine);
             return false;
         }

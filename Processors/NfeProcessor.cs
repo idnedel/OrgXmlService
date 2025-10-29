@@ -31,7 +31,7 @@ public class NfeProcessor : IXmlProcessor
                 return;
             }
 
-            // --- verificação de duplicidade por chave interna ---
+            // verificação de duplicidade por chave
             string? chave = ExtrairChave(doc);
             if (string.IsNullOrEmpty(chave))
             {
@@ -46,7 +46,7 @@ public class NfeProcessor : IXmlProcessor
                 return;
             }
 
-            if (DuplicateChecker.IsDuplicateAndRegister(chave, "NFE", destinoBase))
+            if (DuplicateChecker.DuplicadaERegistrada(chave, "NFE", destinoBase))
             {
                 var filtros = new Dictionary<string, string>
                 {
@@ -56,7 +56,7 @@ public class NfeProcessor : IXmlProcessor
                 FileHelpers.MoverParaErro(caminho, erro, logger, filtros);
                 return;
             }
-            // --- fim duplicidade ---
+            // fim duplicidade
 
             logger.LogInformation("CNPJ EXTRAIDO: {cnpj}", cnpj);
 
