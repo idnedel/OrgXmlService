@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 public static class FileHelpers
 {
@@ -11,18 +12,16 @@ public static class FileHelpers
         Dictionary<string, string>? filtros = null)
     {
         Directory.CreateDirectory(erro);
-        string destino = Path.Combine(erro, Path.GetFileName(caminho));
+        string fileName = Path.GetFileName(caminho);
+        string fileNameWithoutExt = Path.GetFileNameWithoutExtension(caminho);
+        string extension = Path.GetExtension(caminho) ?? ".xml";
+        string destino = Path.Combine(erro, fileName);
 
-        if (File.Exists(destino))
-        {
-            string novoNome = Path.GetFileNameWithoutExtension(caminho) + "_DUPLICADO" + ".xml";
-            destino = Path.Combine(erro, novoNome);
-        }
+        bool isDuplicidade = filtros != null && filtros.TryGetValue("Motivo", out var motivo) && motivo == "Duplicidade";
 
-        if (filtros != null && filtros.ContainsKey("Motivo") && filtros["Motivo"] == "Duplicidade")
+        if (File.Exists(destino) || isDuplicidade)
         {
-            string novoNome = Path.GetFileNameWithoutExtension(caminho) + "_DUPLICADO" + ".xml";
-            destino = Path.Combine(erro, novoNome);
+            destino = GetNextDuplicatePath(erro, fileNameWithoutExt, extension);
         }
 
         File.Move(caminho, destino);
@@ -33,5 +32,32 @@ public static class FileHelpers
             : "FILTROS FALTANDO";
 
         logger.LogWarning("ARQUIVO {arquivo} MOVIDO PARA ERRO. FILTROS: {filtros}", caminho, filtrosLog);
+    }
+
+    private static string GetNextDuplicatePath(string erroDir, string baseName, string extension)
+    {
+        var pattern = $"{baseName}_DUPLICADO*{extension}";
+        var existentes = Directory.Exists(erroDir)
+            ? Directory.GetFiles(erroDir, pattern)
+            : new string[0];
+
+        int maxIndex = 0;
+        foreach (var f in existentes)
+        {
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(f);
+            var suffix = nameWithoutExt.Substring(baseName.Length + "_DUPLICADO".Length);
+            if (string.IsNullOrEmpty(suffix))
+            {
+                maxIndex = Math.Max(maxIndex, 1);
+            }
+            else if (int.TryParse(suffix, out var v))
+            {
+                maxIndex = Math.Max(maxIndex, v);
+            }
+        }
+
+        int nextIndex = (existentes.Length > 0) ? maxIndex + 1 : 1;
+        string nextName = $"{baseName}_DUPLICADO{nextIndex.ToString("D2")}{extension}";
+        return Path.Combine(erroDir, nextName);
     }
 }
